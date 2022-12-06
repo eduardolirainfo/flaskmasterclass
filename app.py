@@ -1,15 +1,17 @@
 # pylint: disable=no-member
-
+from converters import RegexConverter
 from flask import Flask, redirect, render_template, request, url_for, flash
 from flask_alchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+app.url_map.converters['regex'] = RegexConverter
 db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
@@ -94,9 +96,36 @@ def login():
 
 
 @app.route('/logout', methods=['GET', 'POST'])
-def logout(id):
+@login_required
+def logout():
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route('/templates')
+def templates():
+    return render_template(template_name_or_list='index.html')
+
+# regex match com 5 letras
+
+
+@app.route('/reg/<regex("[a-z]{5}"):name>')
+def regex(name):
+    return f"Hello {name}"
+
+# regex match iniciado com a letra a
+
+
+@app.route('/reg/<regex("a.*"):name>/')
+def reg(name):
+    return f"Argumento iniciado com a letra a: {name}"
+
+# regex match iniciado com a letra b
+
+
+@app.route('/reg/<regex("b.*"):name>/')
+def reg_b(name):
+    return f"Argumento iniciado com a letra b: {name}"
 
 
 if __name__ == '__main__':

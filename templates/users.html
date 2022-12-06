@@ -8,13 +8,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block title %}This is an example page{% endblock %}
 </head>
 <body>
 
 {% block navbar %}
 <div class="navbar navbar-fixed-top">
-  <!-- ... -->
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('register') }}">Registrar</a>
+    <a href="{{ url_for('login') }}">Login</a>
+    {% else %}
+    <a href="{{ url_for('logout') }}">Sair</a>
+    {% endif %}
 </div>
 {% endblock %}
 {% block content %}
