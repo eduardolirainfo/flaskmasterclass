@@ -1,10 +1,12 @@
 # pylint: disable=no-member
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, flash
 from flask_alchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_required
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -67,7 +69,7 @@ def register():
         user = User()
         user.name = request.form['name']
         user.email = request.form['email']
-        user.password = request.form['password']
+        user.password = generate_password_hash(request.form['password'])
         # user = User(name=name, email=email, password=password)
         db.session.add(user)
         db.session.commit()
@@ -76,8 +78,25 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login(id):
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('Logged in successfully.')
+            return redirect(url_for("index"))
+        else:
+            flash("Invalid email or password")
+            return redirect(url_for("login"))
     return render_template('login.html')
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout(id):
+    logout_user()
+    return redirect(url_for("index"))
 
 
 if __name__ == '__main__':
