@@ -6,29 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% extends 'bootstrap/base.html' %}
-    {% block styles %}
-    {{super()}}
-    <link rel="stylesheet"
-        href="{{url_for('.static', filename='global.css')}}">
-    {% endblock %}
     {% block title %}This is an example page{% endblock %}
 </head>
 <body>
 
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-  <!-- ... -->
-</div>
-{% endblock %}
 {% block content %}
-    <h1> Resposta do documento </h1>
+        <li>{{ user.id }}</li>  
+        <li>{{ user.name }}</li>  
+        <li>{{ user.email }}</li> 
+        <a href="{{ url_for('delete', id=user.id)}}">Deletar</a>          
+     </ul>   
 {% endblock %}
 
-{% block scripts %}
-<script src="{{url_for('.static', filename='magic.js')}}"></script>
-{{super()}}
-{% endblock %}
 </body>
 
 </html>

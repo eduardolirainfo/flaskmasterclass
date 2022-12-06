@@ -1,4 +1,6 @@
-from flask import Flask
+# pylint: disable=no-member
+
+from flask import Flask, redirect, render_template
 from flask_alchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -21,7 +23,22 @@ class User(db.Model):
 
 @app.route('/')
 def index():
-    return '<a href = "/posts" > POSTS < /a >'
+    users = User.query.all()  # select * from users
+    return render_template('users.html', users=users)
+
+
+@app.route('/user/<int:id>')
+def unique(id):
+    user = User.query.get(id)  # select * from users
+    return render_template('user.html', user=user)
+
+
+@app.route('/user/delete/<int:id>')
+def delete(id):
+    user = User.query.filter_by(id=id).first()
+    db.session.delete(user)
+    db.session.commit()
+    return redirect('/')
 
 
 if __name__ == '__main__':
