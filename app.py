@@ -2,7 +2,7 @@
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_alchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager, UserMixin, login_required
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -47,6 +47,7 @@ def index():
 
 
 @app.route('/user/<int:id>')
+@login_required
 def unique(id):
     user = User.query.get(id)  # select * from users
     return render_template('user.html', user=user)
