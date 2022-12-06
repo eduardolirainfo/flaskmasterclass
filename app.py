@@ -1,7 +1,8 @@
 # pylint: disable=no-member
 
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, request, url_for
 from flask_alchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -9,8 +10,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+login_manager = LoginManager(app)
 
-class User(db.Model):
+
+class User(db.Model, UserMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(84), nullable=False)
@@ -32,6 +35,11 @@ class Profile(db.Model):
         return self.name
 
 
+@login_manager.user_loader
+def current_user(user_id):
+    return User.query.get(user_id)
+
+
 @app.route('/')
 def index():
     users = User.query.all()  # select * from users
@@ -50,6 +58,25 @@ def delete(id):
     db.session.delete(user)
     db.session.commit()
     return redirect('/')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        user = User()
+        user.name = request.form['name']
+        user.email = request.form['email']
+        user.password = request.form['password']
+        # user = User(name=name, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for("index"))
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login(id):
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
