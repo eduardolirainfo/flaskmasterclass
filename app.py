@@ -20,8 +20,8 @@ def response():
     return render_template(template_name_or_list='response.html')
 
 
-@ app.route('/posts')  # This is the default route
-@ app.route('/posts/<int:id>')  # This is the default route
+@ app.route('/posts')
+@ app.route('/posts/<int:id>')
 def posts(id):
     titulo = request.args.get('titulo')
 
